@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Werwolf 2.0 - Spielleiter Assistent</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>🐺 Düsterwald 2.0 (Werwolf Edition)</h1>
+
+    <!-- SCHRITT 1: SETUP SCREEN -->
+    <div id="setup-screen" class="card">
+        <h2>Schritt 1: Spiel-Setup</h2>
+        
+        <label for="player-input">Spieler (mit Komma trennen):</label>
+        <textarea id="player-input" rows="3" placeholder="Anna, Ben, Chris, Diana, Erik"></textarea>
+
+        <h3 style="margin-top: 25px;">Rollen-Pool auswählen & Mengen festlegen:</h3>
+        <div id="roles-container" class="roles-grid">
+            <!-- Wird dynamisch durch JS befüllt -->
+        </div>
+
+        <button onclick="goToAssignScreen()">Weiter zum Zuweisen</button>
+        <div class="button-group">
+            <button onclick="goToAssignScreen()">Weiter zum Zuweisen</button>
+            <button onclick="randomizeSetup()" class="btn-secondary">🎲 Zufälliges Setup</button>
+        </div>
+    </div>
+
+    <!-- SCHRITT 2: ROLLEN ZUWEISEN SCREEN -->
+
+    <div id="assign-screen" class="card hidden">
+        <h2>Schritt 2: Rollen austeilen & zuweisen</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px; margin-bottom: 10px;">
+            <p style="margin: 0; font-weight: bold;">Trage hier ein, welcher Spieler welche Rolle gezogen hat:</p>
+            <button onclick="randomizeAssignments()" class="btn-secondary btn-inline">🎲 Zufällig verteilen</button>
+        </div>
+        
+        <div class="info-box">
+            <h3 style="margin-top: 0; text-align: left; font-size: 16px; color: #fff;">Status des physischen Kartenstapels:</h3>
+            <div id="cards-pool-status" class="pool-grid">
+                <!-- Dynamische Karten-Badges werden hier generiert -->
+            </div>
+        </div>
+
+        <p style="margin-top: 25px; font-weight: bold;">Trage hier ein, welcher Spieler welche Rolle gezogen hat:</p>
+        <div id="player-role-assignment">
+            <!-- Dropdowns für jeden Spieler werden hier generiert -->
+        </div>
+
+        <button onclick="startGame()">Spiel starten</button>
+        <button onclick="backToSetup()" class="btn-secondary">Zurück zum Setup</button>
+    </div>
+
+    <!-- SCHRITT 3: SPIELPLAN BEREICH -->
+    <div id="game-screen" class="card hidden">
+        <h2>Schritt 3: Spielleiter-Übersicht</h2>
+        
+        <!-- SIEG-ANZEIGE BANNER -->
+        <div id="win-banner" class="win-banner hidden"></div>
+
+        <div class="game-header">
+            <span id="player-count">Lebende Spieler: 0 / 0</span>
+            <button onclick="resetGame()" class="btn-danger">Spiel zurücksetzen</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Spieler</th>
+                    <th>Rolle</th>
+                    <th>Fraktion</th>
+                    <th>Fähigkeit / Info</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="game-table-body">
+                <!-- Wird dynamisch befüllt -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Erst die Hauptlogik laden -->
+<script src="script.js"></script>
+
+<!-- Danach alle Rollen-Dateien laden -->
+<script src="roles/dorfbewohner.js"></script>
+<script src="roles/seherin.js"></script>
+<script src="roles/hexe.js"></script>
+<script src="roles/jaeger.js"></script>
+<script src="roles/werwolf.js"></script>
+<script src="roles/werwolf_schamane.js"></script>
+<script src="roles/narr.js"></script>
+<script src="roles/rotkaeppchen.js"></script>
+<script src="roles/blocker.js"></script>
+<script src="roles/nachahmer.js"></script>
+<script src="roles/saboteur.js"></script>
+<script src="roles/Neugiriger Nachbar.js"></script>
+<script src="roles/bodyguard.js"></script>
+<script src="roles/dieb.js"></script>
+<script src="roles/amor.js"></script>
+</body>
+</html>

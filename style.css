@@ -1,0 +1,471 @@
+:root {
+    --bg-dark: #09090b;        /* Sehr dunkles, modernes Grau */
+    --bg-card: #18181b;        /* Etwas helleres Grau für Karten */
+    --bg-input: #27272a;       /* Farbe für Textfelder */
+    --text-light: #f4f4f5;     /* Reines Weiß für Primärtexte */
+    --text-muted: #a1a1aa;     /* Abgedunkeltes Grau für Beschreibungen */
+    
+    /* Fraktions-Farben */
+    --accent-dorf: #06b6d4;    /* Modernes Cyan */
+    --accent-werwolf: #f43f5e; /* Weiches Karmesinrot */
+    --accent-neutral: #eab308; /* Bernstein/Gold */
+    
+    --border-color: #27272a;
+    --border-hover: #3f3f46;
+    --input-focus: #3b82f6;    /* Fokus-Blau */
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    margin: 0;
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    max-width: 1000px;
+    width: 100%;
+}
+
+h1 {
+    text-align: center;
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 35px;
+    letter-spacing: -0.05em;
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+}
+
+h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+    margin-top: 0;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 14px;
+}
+
+h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+.card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+textarea, select, input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 12px 16px;
+    background-color: var(--bg-input);
+    color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    box-sizing: border-box;
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+textarea:focus, select:focus, input[type="text"]:focus, input[type="number"]:focus {
+    border-color: var(--input-focus);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Schritt 1: Rollengrid */
+.roles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 16px;
+    margin-top: 15px;
+}
+
+.role-option {
+    background: #202024;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.role-option:hover {
+    border-color: var(--border-hover);
+    background-color: #242429;
+}
+
+.role-option-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.role-option-left input[type="checkbox"] {
+    margin-top: 3px;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--input-focus);
+    cursor: pointer;
+}
+
+.role-option.team-dorf { border-left: 4px solid var(--accent-dorf); }
+.role-option.team-werwolf { border-left: 4px solid var(--accent-werwolf); }
+.role-option.team-neutral { border-left: 4px solid var(--accent-neutral); }
+
+.role-info {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    line-height: 1.4;
+}
+
+.role-qty-input {
+    width: 60px;
+    padding: 8px;
+    background-color: var(--bg-dark);
+    color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* Schritt 2: Kärtchen-Grid für den Live-Kartenstapel */
+.info-box {
+    background-color: #121214;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.pool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.pool-card {
+    background: #1f1f23;
+    border: 1px solid var(--border-color);
+    padding: 12px 14px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pool-card-title {
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.pool-card-count {
+    font-size: 12px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+/* Statuszustände der Live-Karten */
+.pool-card.incomplete {
+    border-color: rgba(234, 179, 8, 0.4);
+    background: rgba(234, 179, 8, 0.05);
+    color: #fef08a;
+}
+
+.pool-card.complete {
+    border-color: rgba(34, 197, 94, 0.4);
+    background: rgba(34, 197, 94, 0.05);
+    color: #86efac;
+}
+
+.pool-card.overallocated {
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.05);
+    color: #fca5a5;
+}
+
+/* Buttons */
+button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: #27272a;
+    border: 1px solid var(--border-color);
+    color: var(--text-light);
+}
+.btn-secondary:hover {
+    background: #3f3f46;
+    border-color: var(--border-hover);
+    box-shadow: none;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+.btn-danger:hover {
+    background: linear-gradient(135deg, #f87171, #ef4444);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Zuweisungs-Zeilen */
+.assign-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1f1f23;
+    padding: 12px 18px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.assign-row span {
+    font-weight: 600;
+}
+
+.assign-row select {
+    width: auto;
+    margin-bottom: 0;
+    min-width: 220px;
+    padding: 8px 12px;
+}
+
+/* Spielplan Tabelle */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.game-header button {
+    width: auto;
+    margin: 0;
+    padding: 10px 18px;
+    font-size: 13px;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    background-color: #121214;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover td {
+    background-color: #1c1c20;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.badge-dorf { background-color: rgba(6, 182, 212, 0.12); color: #22d3ee; }
+.badge-werwolf { background-color: rgba(244, 63, 94, 0.12); color: #fb7185; }
+.badge-neutral { background-color: rgba(234, 179, 8, 0.12); color: #fde047; }
+
+/* Status-Knöpfe */
+.status-btn {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 12px;
+    min-width: 130px;
+    text-align: center;
+    transition: filter 0.2s, background-color 0.2s;
+    margin-top: 0;
+    box-shadow: none;
+    width: auto;
+}
+
+.status-btn:hover {
+    filter: brightness(1.1);
+    box-shadow: none;
+}
+
+.status-alive { background-color: #10b981; color: #fff; }
+.status-dead-night { background-color: #3f3f46; color: #a1a1aa; text-decoration: line-through; }
+.status-lynched { background-color: #dc2626; color: #fff; text-decoration: line-through; }
+
+/* Gewinner-Banner */
+.win-banner {
+    padding: 24px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.97); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.banner-dorf {
+    background-color: rgba(6, 182, 212, 0.1);
+    border: 1px solid var(--accent-dorf);
+    color: #22d3ee;
+}
+
+.banner-werwolf {
+    background-color: rgba(244, 63, 94, 0.1);
+    border: 1px solid var(--accent-werwolf);
+    color: #fb7185;
+}
+
+.banner-neutral {
+    background-color: rgba(234, 179, 8, 0.1);
+    border: 1px solid var(--accent-neutral);
+    color: #fde047;
+}
+
+/* Hexen-Tränke Styling */
+.witch-potions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.witch-potions label {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    font-weight: 500;
+    font-size: 12px;
+    cursor: pointer;
+    color: #fff;
+}
+
+.witch-potions input[type="checkbox"] {
+    margin-right: 8px;
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Layout für nebeneinanderliegende Buttons */
+.button-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.button-group button {
+    margin-top: 0 !important;
+    flex: 1;
+}
+
+.btn-inline {
+    width: auto !important;
+    margin: 0 !important;
+    padding: 8px 14px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+}
+
+/* Spezifische Rollen-Boxen in der Tabelle */
+.saboteur-box, .nachahmer-box, .neugieriger-nachbar-panel {
+    background: rgba(0, 0, 0, 0.15);
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.saboteur-box button {
+    padding: 6px 10px;
+    font-size: 11px;
+    margin-top: 4px;
+    font-weight: 500;
+}
