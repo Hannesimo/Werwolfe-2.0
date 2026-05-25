@@ -13,31 +13,249 @@ let activeGameRoles = [];
 let roleCountsLimit = {};  
 let activePlayersState = []; 
 
-// 1. Initialisierung: Zeige Rollen auf der Startseite mit Mengen-Eingebefeld an
+// Dynamische CSS-Styles für die modernen Hover- und Glow-Effekte der Karten injizieren
+const customStyles = document.createElement('style');
+customStyles.innerHTML = `
+    .role-option {
+        cursor: pointer;
+        transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+        user-select: none;
+    }
+    .role-option:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    }
+    .role-option.selected.team-dorf {
+        border-color: var(--accent-dorf);
+        box-shadow: 0 0 10px rgba(6, 182, 212, 0.25);
+        background-color: rgba(6, 182, 212, 0.05);
+    }
+    .role-option.selected.team-werwolf {
+        border-color: var(--accent-werwolf);
+        box-shadow: 0 0 10px rgba(244, 63, 94, 0.25);
+        background-color: rgba(244, 63, 94, 0.05);
+    }
+    .role-option.selected.team-neutral {
+        border-color: var(--accent-neutral);
+        box-shadow: 0 0 10px rgba(234, 179, 8, 0.25);
+        background-color: rgba(234, 179, 8, 0.05);
+    }
+    .role-library-card:hover {
+        transform: translateY(-3px);
+        border-color: var(--input-focus) !important;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.4) !important;
+    }
+`;
+document.head.appendChild(customStyles);
+
+// 1. Initialisierung: Zeige Rollen auf der Startseite sortiert nach Fraktionen an
 function renderRolesSelection() {
     const container = document.getElementById('roles-container');
     container.innerHTML = '';
 
-    ROLES_DATABASE.forEach(role => {
-        // Standardmäßig Dorfbewohner und Werwolf aktiviert
-        const isChecked = (role.id === "dorfbewohner" || role.id === "werwolf") ? "checked" : "";
-        const defaultQty = role.defaultCount || "1";
-        
+    // Definition der Fraktions-Kategorien
+    const categories = [
+        { title: "🏘️ Dorfbewohner & Verbündete", team: "dorf" },
+        { title: "🐺 Werwölfe & Fraktion", team: "werwolf" },
+        { title: "✨ Neutrale Rollen", team: "neutral" }
+    ];
+
+    categories.forEach(cat => {
+        const rolesInCat = ROLES_DATABASE.filter(r => r.team === cat.team);
+        if (rolesInCat.length === 0) return;
+
+        // Sortierung: Hauptkarten zuerst, danach alphabetisch
+        rolesInCat.sort((a, b) => {
+            if (a.isFiller) return -1;
+            if (b.isFiller) return 1;
+            return a.name.localeCompare(b.name);
+        });
+
+        // Kategorie-Überschrift
         container.innerHTML += `
-            <div class="role-option team-${role.team}">
-                <div class="role-option-left">
-                    <input type="checkbox" id="role-${role.id}" ${isChecked} data-role-id="${role.id}">
-                    <div>
-                        <strong style="display:block;">${role.name}</strong>
-                        <div class="role-info">${role.description}</div>
+            <div class="category-header" style="grid-column: 1 / -1; margin-top: 25px; margin-bottom: 5px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                <h3 style="margin: 0; color: #fff; display: flex; align-items: center; gap: 8px;">${cat.title}</h3>
+            </div>
+        `;
+
+        rolesInCat.forEach(role => {
+            const isChecked = (role.id === "dorfbewohner" || role.id === "werwolf") ? "checked" : "";
+            const defaultQty = role.defaultCount || "1";
+            const isSelectedClass = isChecked ? "selected" : "";
+            
+            container.innerHTML += `
+                <div class="role-option team-${role.team} ${isSelectedClass}" onclick="toggleRoleOption(event, '${role.id}')" 
+                     style="position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between;">
+                    
+                    <!-- Transparentes, weich auslaufendes Hintergrundbild im Karten-Hintergrund -->
+                    <div style="position: absolute; right: -15px; bottom: -15px; width: 130px; height: 130px; 
+                                background-image: url('pics/${role.id}.png'), url('pics/default.png'); 
+                                background-size: cover; background-position: center; 
+                                opacity: 0.15; pointer-events: none; z-index: 0;
+                                filter: grayscale(15%);
+                                mask-image: linear-gradient(to left, rgba(0,0,0,1) 15%, rgba(0,0,0,0) 100%);
+                                -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 15%, rgba(0,0,0,0) 100%);">
+                    </div>
+
+                    <!-- Vordergrund: Interaktive Elemente & Text -->
+                    <div class="role-option-left" style="align-items: center; flex: 1; z-index: 1; position: relative; pointer-events: none;">
+                        <!-- Checkbox klickbar halten -->
+                        <input type="checkbox" id="role-${role.id}" ${isChecked} data-role-id="${role.id}" 
+                               style="margin: 0; cursor: pointer; width: 18px; height: 18px; pointer-events: auto;">
+                        
+                        <div style="margin-left: 15px;">
+                            <strong style="display:block; color: #fff; font-size: 14px;">${role.name}</strong>
+                            <div class="role-info" style="font-size: 11px; margin-top: 3px; max-width: 85%;">${role.description}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="z-index: 1; position: relative;">
+                        <input type="text" id="role-qty-${role.id}" value="${defaultQty}" class="role-qty-input" title="Anzahl" 
+                               style="width: 50px; padding: 6px; text-align: center; border-radius: 8px;">
                     </div>
                 </div>
-                <div>
-                    <input type="text" id="role-qty-${role.id}" value="${defaultQty}" class="role-qty-input" title="Anzahl (z.B. 1, 25% oder Rest)">
+            `;
+        });
+    });
+}
+
+// Ermöglicht das Anklicken der gesamten Karte zum Auswählen
+function toggleRoleOption(event, roleId) {
+    // Klick auf das Mengen-Eingabefeld soll die Checkbox nicht umschalten
+    if (event.target.classList.contains('role-qty-input') || event.target.closest('.role-qty-input')) {
+        return;
+    }
+
+    const checkbox = document.getElementById(`role-${roleId}`);
+    if (checkbox) {
+        // Wenn auf die Checkbox selbst geklickt wurde, hat der Browser sie bereits umgeschaltet.
+        // Andernfalls schalten wir sie manuell um.
+        if (event.target !== checkbox) {
+            checkbox.checked = !checkbox.checked;
+        }
+
+        // Visuelle Glow-Klasse aktualisieren
+        const card = checkbox.closest('.role-option');
+        if (card) {
+            if (checkbox.checked) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        }
+    }
+}
+
+// 1b. Einzelne Rollenseite für NFC-Scan generieren
+function showStandaloneRolePage(roleId) {
+    const role = ROLES_DATABASE.find(r => r.id === roleId);
+    
+    if (!role) {
+        document.body.innerHTML = `
+            <div class="container" style="display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; box-sizing: border-box;">
+                <div class="card" style="max-width: 450px; width: 100%; text-align: center;">
+                    <h2>Rolle nicht gefunden 😢</h2>
+                    <p style="color: var(--text-muted);">Die gesuchte Rolle existiert leider nicht.</p>
+                    <a href="index.html" class="btn-secondary" style="display: inline-block; text-decoration: none; padding: 12px 20px; border-radius: 10px; margin-top: 15px;">Zurück zum Hauptmenü</a>
                 </div>
             </div>
         `;
+        return;
+    }
+
+    let teamLabel = "Neutral";
+    let badgeClass = "badge-neutral";
+    if (role.team === "dorf") {
+        teamLabel = "Dorfbewohner";
+        badgeClass = "badge-dorf";
+    } else if (role.team === "werwolf") {
+        teamLabel = "Werwölfe";
+        badgeClass = "badge-werwolf";
+    }
+
+    document.body.innerHTML = `
+        <div class="container" style="display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; box-sizing: border-box;">
+            <div class="card" style="max-width: 480px; width: 100%; text-align: center; border: 2px solid var(--border-color); box-shadow: 0 20px 40px rgba(0,0,0,0.6); animation: popIn 0.4s ease;">
+                
+                <img src="pics/${role.id}.png" alt="${role.name}" onerror="this.src='pics/default.png'; this.onerror=null;" 
+                     style="max-width: 180px; width: 100%; height: 180px; object-fit: cover; border-radius: 50%; border: 3px solid var(--border-color); margin: 0 auto 20px; display: block; box-shadow: 0 8px 16px rgba(0,0,0,0.4);">
+                
+                <h1 style="margin-bottom: 10px; font-size: 2.1rem; color: #fff;">${role.name}</h1>
+                <span class="badge ${badgeClass}" style="font-size: 13px; padding: 6px 14px; margin-bottom: 20px;">Team: ${teamLabel}</span>
+                
+                <div style="background-color: var(--bg-dark); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-top: 15px; text-align: left; line-height: 1.6; color: var(--text-light); font-size: 15px;">
+                    ${role.description}
+                </div>
+                
+                <!-- Navigation zurück zur Spielleitung oder zur globalen Rollen-Bibliothek -->
+                <div style="display: flex; gap: 12px; margin-top: 25px; justify-content: center;">
+                    <a href="index.html" class="btn-secondary" style="margin: 0; padding: 10px 18px; text-decoration: none; font-size: 13px; font-weight: 600; border-radius: 8px; display: inline-flex; align-items: center; width: auto; background: linear-gradient(135deg, #1f1f23, #27272a);">🏡 Spielleitung</a>
+                    <a href="index.html?overview=true" class="btn-secondary" style="margin: 0; padding: 10px 18px; text-decoration: none; font-size: 13px; font-weight: 600; border-radius: 8px; display: inline-flex; align-items: center; width: auto; background-color: rgba(255,255,255,0.03);">📚 Alle Rollen</a>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// 1c. Globale Übersicht aller Rollen generieren (Bibliothek)
+function showRolesOverviewPage() {
+    const categories = [
+        { title: "🏘️ Dorfbewohner & Verbündete", team: "dorf", badge: "badge-dorf", label: "Dorfbewohner" },
+        { title: "🐺 Werwölfe & Fraktion", team: "werwolf", badge: "badge-werwolf", label: "Werwölfe" },
+        { title: "✨ Neutrale Rollen", team: "neutral", badge: "badge-neutral", label: "Neutral" }
+    ];
+
+    let htmlContent = `
+        <div class="container" style="max-width: 900px; padding: 40px 20px; box-sizing: border-box;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="margin-bottom: 10px;">📚 Düsterwald Rollenbibliothek</h1>
+                <p style="color: var(--text-muted); font-size: 15px;">Durchsuche alle verfügbaren Rollen und ihre Fähigkeiten.</p>
+                <a href="index.html" class="btn-secondary" style="display: inline-flex; width: auto; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; margin-top: 10px;">🏡 Zurück zur Spielleitung</a>
+            </div>
+    `;
+
+    categories.forEach(cat => {
+        const rolesInCat = ROLES_DATABASE.filter(r => r.team === cat.team);
+        if (rolesInCat.length === 0) return;
+
+        rolesInCat.sort((a, b) => {
+            if (a.isFiller) return -1;
+            if (b.isFiller) return 1;
+            return a.name.localeCompare(b.name);
+        });
+
+        htmlContent += `
+            <div style="margin-top: 40px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                <h2 style="margin: 0; color: #fff; font-size: 1.5rem; display: flex; align-items: center; gap: 8px;">${cat.title}</h2>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px;">
+        `;
+
+        rolesInCat.forEach(role => {
+            htmlContent += `
+                <div class="card role-library-card" style="margin-bottom: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;" 
+                     onclick="window.location.search = '?role=${role.id}'">
+                    
+                    <img src="pics/${role.id}.png" alt="${role.name}" onerror="this.src='pics/default.png'; this.onerror=null;" 
+                         style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%; border: 2px solid var(--border-color); margin-bottom: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.35);">
+                    
+                    <strong style="color: #fff; font-size: 16px; display: block; margin-bottom: 6px;">${role.name}</strong>
+                    <span class="badge ${cat.badge}" style="font-size: 10px; padding: 4px 10px; margin-bottom: 10px;">${cat.label}</span>
+                    
+                    <div style="font-size: 12px; color: var(--text-muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; margin-bottom: 15px;">
+                        ${role.description}
+                    </div>
+                    
+                    <span style="margin-top: auto; font-size: 12px; font-weight: 600; color: var(--accent-dorf); display: inline-flex; align-items: center; gap: 4px;">🔍 Details ansehen</span>
+                </div>
+            `;
+        });
+
+        htmlContent += `</div>`;
     });
+
+    htmlContent += `</div>`;
+    document.body.innerHTML = htmlContent;
 }
 
 // 2. Wechsel zum Zuweisungs-Bildschirm mit Prozent- & Mengenkalkulation
@@ -510,6 +728,16 @@ function randomizeSetup() {
             // 50% Chance, dass eine Sonderrolle aktiviert wird
             checkbox.checked = Math.random() < 0.5;
         }
+        
+        // Glow für alle Checkboxen im Setup updaten
+        const card = checkbox.closest('.role-option');
+        if (card) {
+            if (checkbox.checked) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        }
     });
 }
 
@@ -541,6 +769,20 @@ function randomizeAssignments() {
     updateRoleLimitsAndPoolStatus();
 }
 
+// Router beim Laden der Seite initialisieren (für NFC-Scans & App-Start)
 window.addEventListener('DOMContentLoaded', () => {
-    renderRolesSelection();
+    const urlParams = new URLSearchParams(window.location.search);
+    const roleParam = urlParams.get('role');
+    const overviewParam = urlParams.get('overview');
+
+    if (roleParam) {
+        // standalone NFC-Einzelansicht anzeigen
+        showStandaloneRolePage(roleParam);
+    } else if (overviewParam === "true") {
+        // Die neue globale Rollen-Bibliothek anzeigen
+        showRolesOverviewPage();
+    } else {
+        // Standard-Lobby laden
+        renderRolesSelection();
+    }
 });
