@@ -1,6 +1,3 @@
-// ===================================================
-// DÜSTERWALD 2.0 ENGINE (Universelle Spiellogik)
-// ===================================================
 const ROLES_DATABASE = [];
 
 // Globale Registrierungsfunktion für Rollen-Dateien
@@ -178,7 +175,7 @@ function showStandaloneRolePage(roleId) {
             <div class="card" style="max-width: 480px; width: 100%; text-align: center; border: 2px solid var(--border-color); box-shadow: 0 20px 40px rgba(0,0,0,0.6); animation: popIn 0.4s ease;">
                 
                 <img src="pics/${role.id}.png" alt="${role.name}" onerror="this.src='pics/default.png'; this.onerror=null;" 
-                     style="max-width: 180px; width: 100%; height: 180px; object-fit: cover; border-radius: 50%; border: 3px solid var(--border-color); margin: 0 auto 20px; display: block; box-shadow: 0 8px 16px rgba(0,0,0,0.4);">
+     style="max-width: 240px; width: 100%; height: auto; object-fit: contain; margin: 0 auto 20px; display: block;">
                 
                 <h1 style="margin-bottom: 10px; font-size: 2.1rem; color: #fff;">${role.name}</h1>
                 <span class="badge ${badgeClass}" style="font-size: 13px; padding: 6px 14px; margin-bottom: 20px;">Team: ${teamLabel}</span>
@@ -201,7 +198,7 @@ function showStandaloneRolePage(roleId) {
 function showRolesOverviewPage() {
     const categories = [
         { title: "🏘️ Dorfbewohner & Verbündete", team: "dorf", badge: "badge-dorf", label: "Dorfbewohner" },
-        { title: "🐺 Werwölfe & Fraktion", team: "werwolf", badge: "badge-werwolf", label: "Werwölfe" },
+        { title: "🐺 Werwölfe", team: "werwolf", badge: "badge-werwolf", label: "Werwölfe" },
         { title: "✨ Neutrale Rollen", team: "neutral", badge: "badge-neutral", label: "Neutral" }
     ];
 
@@ -237,7 +234,7 @@ function showRolesOverviewPage() {
                      onclick="window.location.search = '?role=${role.id}'">
                     
                     <img src="pics/${role.id}.png" alt="${role.name}" onerror="this.src='pics/default.png'; this.onerror=null;" 
-                         style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%; border: 2px solid var(--border-color); margin-bottom: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.35);">
+     style="max-width: 120px; width: 100%; height: auto; object-fit: contain; margin-bottom: 12px; display: block;">
                     
                     <strong style="color: #fff; font-size: 16px; display: block; margin-bottom: 6px;">${role.name}</strong>
                     <span class="badge ${cat.badge}" style="font-size: 10px; padding: 4px 10px; margin-bottom: 10px;">${cat.label}</span>
